@@ -1,0 +1,10 @@
+<% if (bootstrap) { %>
+<% if (!bootstrapTheme || bootstrapTheme === 'default') { %>
+@import url("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css");
+
+<% } else if (bootstrapTheme) { %>
+@import url("https://bootswatch.com/<%= bootstrapTheme %>/bootstrap.min.css");
+
+<% }} %>body {
+  padding: 10px;
+}

@@ -1,0 +1,37 @@
+{
+  "name": "generator-chrome-ninja",
+  "version": "0.0.1",
+  "description": "Generator for Chrome extensions",
+  "main": "generators/app/index.js",
+  "scripts": {
+    "build": "gulp build",
+    "prepublish": "npm run build"
+  },
+  "files": [
+    "generators"
+  ],
+  "keywords": [
+    "yeoman-generator",
+    "chrome",
+    "extension"
+  ],
+  "author": "Vincent Weevers",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "~5.8.25",
+    "gulp": "~3.9.0",
+    "gulp-babel": "~5.2.1",
+    "gulp-if": "~1.2.5",
+    "gulp-util": "~3.0.6"
+  },
+  "dependencies": {
+    "bootswatch": "~3.3.5",
+    "generator-bare-react": "~1.0.1",
+    "generator-nom": "~1.1.0",
+    "param-case": "~1.1.1",
+    "yeoman-generator": "~0.20.3"
+  },
+  "repository": "ironSource/node-generator-chrome-ninja",
+  "bugs": "https://github.com/ironSource/node-generator-chrome-ninja/issues",
+  "homepage": "https://github.com/ironSource/node-generator-chrome-ninja"
+}
