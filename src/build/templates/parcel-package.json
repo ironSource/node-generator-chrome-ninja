@@ -1,6 +1,0 @@
-{
-  "name": "<%= moduleName %>-<%= parcelName %>",
-  "description": "Parcel for <%= parcelName %>",
-  "style": ["<%= style %>"],
-  "transforms": <%- JSON.stringify(transforms, null, ' ') %>
-}

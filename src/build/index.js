@@ -1,5 +1,6 @@
 var paramCase = require('param-case')
   , bootswatch = require('bootswatch/api/3.json').themes
+  , bareReact = require.resolve('generator-bare-react')
 
 var { Base } = require('yeoman-generator')
 
@@ -14,16 +15,18 @@ const DEV_DEPENDENCIES =
   , 'uglifyify': null
   , 'watchify': null
   , 'concat-stream': null
-  , 'mini-lr': '~0.1.8'
-  , 'livereload-js': '~2.2.2'
   , 'path-exists': null
   , 'gulp-imagemin': null
   , 'config-prompt': '~1.0.0'
   , 'in-production': null
   , 'vinyl-imitate': '~1.0.0'
-  , 'add-transforms': '~1.0.0'
-  , 'touchp': null
-  , 'parcelify': null }
+  , 'add-transforms': '~1.0.0' }
+
+const REACT_DEV_DEPENDENCIES =
+  { 'babel-plugin-react-transform': '~1.1.1'
+  , 'livereactload': '~2.1.0'
+  , 'react-proxy': '~1.1.1'
+  , 'livereactload-chrome': '~1.0.2' }
 
 function bootswatchNames() {
   return bootswatch.map(theme => theme.name)
@@ -34,7 +37,7 @@ const self = module.exports = class ChromeGenerator extends Base {
   askFor() {
     // In case a module was already generated or created
     let { name, description } = this.fs.readJSON('package.json', {})
-    
+
     // Use existing manifest values as defaults
     let { permissions = [], browser_action, page_action, options_page, omnibox, content_scripts }
         = this.fs.readJSON('app/manifest.json', {})
@@ -145,7 +148,7 @@ const self = module.exports = class ChromeGenerator extends Base {
         , description = escape(answers.description)
 
       // TODO: set display value for questions
-      if (answers.preprocessor === 'none') answers.preprocessor = 'css' 
+      if (answers.preprocessor === 'none') answers.preprocessor = 'css'
       if (answers.bootstrapTheme === 'none') answers.bootstrapTheme = null
 
       this.ctx = answers
@@ -164,15 +167,25 @@ const self = module.exports = class ChromeGenerator extends Base {
       let dependencies = {}
         , devDependencies = { ...DEV_DEPENDENCIES }
 
+      if (this.manifest.action > 0 || this.manifest.options || this.manifest.contentscript) {
+        // Put additional babelrc in app dir, with livereactload config
+        this.fs.copy(
+          this.templatePath('react.babelrc'),
+          this.destinationPath('app/.babelrc')
+        )
+
+        // Add livereactload dependencies
+        devDependencies = { ...devDependencies, ...REACT_DEV_DEPENDENCIES }
+      }
+
       if (answers.bootstrap && answers.preprocessor !== 'css') {
         dependencies['bootswatch'] = null
       }
 
       if (answers.preprocessor === 'less') {
-        devDependencies['less-css-stream'] = null
-        devDependencies['less-plugin-npm-import'] = null
+        // ..
       } else if (answers.preprocessor === 'sass') {
-        devDependencies['sass-css-stream'] = null
+        // ..
       }
 
       this.composeWith('nom'
@@ -193,6 +206,11 @@ const self = module.exports = class ChromeGenerator extends Base {
     })
   }
 
+  _addReact(options) {
+    let link = { local: bareReact, link: 'strong' }
+    this.composeWith('bare-react', { options }, link)
+  }
+
   manifest() {
     var manifest = {};
     var permissions = [];
@@ -208,17 +226,15 @@ const self = module.exports = class ChromeGenerator extends Base {
       var title = (this.manifest.action === 1) ? 'browser_action' : 'page_action';
       manifest[title] = JSON.stringify(action, null, 2).replace(/\n/g, '\n  ');
 
-      this.composeWith('bare-react'
-        , { options:  { type: 'app'
-                      , dest: 'app/lib/popup'
-                      , name: 'Popup'
-                      , router: false
-                      , bootstrap: this.ctx.bootstrap
-                      , skipInstall: this.options.skipInstall
-                      , skipCache: this.options.skipCache
-                      , children: [ 'PopupNinja' ]}}
-        , { local: require.resolve('generator-bare-react')
-          , link: 'strong' })
+      this._addReact
+       ({ type: 'app'
+        , dest: 'app/lib/popup'
+        , name: 'Popup'
+        , router: false
+        , bootstrap: this.ctx.bootstrap
+        , skipInstall: this.options.skipInstall
+        , skipCache: this.options.skipCache
+        , children: [ 'PopupNinja' ] })
     }
 
     // add options page field.
@@ -230,15 +246,13 @@ const self = module.exports = class ChromeGenerator extends Base {
       manifest.options_page = '"lib/options/options.html"';
       manifest.options_ui = JSON.stringify(options_ui, null, 2).replace(/\n/g, '\n  ');
 
-      this.composeWith('bare-react'
-        , { options:  { type: 'app'
-                      , skipInstall: this.options.skipInstall
-                      , skipCache: this.options.skipCache
-                      , bootstrap: this.ctx.bootstrap
-                      , dest: 'app/lib/options'
-                      , name: 'Options' }}
-        , { local: require.resolve('generator-bare-react')
-          , link: 'strong' })
+      this._addReact
+       ({ type: 'app'
+        , skipInstall: this.options.skipInstall
+        , skipCache: this.options.skipCache
+        , bootstrap: this.ctx.bootstrap
+        , dest: 'app/lib/options'
+        , name: 'Options' })
     }
 
     // add omnibox keyword field.
@@ -257,17 +271,15 @@ const self = module.exports = class ChromeGenerator extends Base {
 
       manifest.content_scripts = JSON.stringify(contentscript, null, 2).replace(/\n/g, '\n  ');
 
-      this.composeWith('bare-react'
-        , { options:  { type: 'app'
-                      , skipInstall: this.options.skipInstall
-                      , skipCache: this.options.skipCache
-                      , dest: 'app/lib/content-script'
-                      , name: 'ContentScript'
-                      , append: true
-                      , router: false
-                      , bootstrap: false }}
-        , { local: require.resolve('generator-bare-react')
-          , link: 'strong' })
+      this._addReact
+       ({ type: 'app'
+        , skipInstall: this.options.skipInstall
+        , skipCache: this.options.skipCache
+        , dest: 'app/lib/content-script'
+        , name: 'ContentScript'
+        , append: true
+        , router: false
+        , bootstrap: false })
     }
 
     // add generate permission field.
@@ -318,25 +330,6 @@ const self = module.exports = class ChromeGenerator extends Base {
     )
   }
 
-  _createParcel(parcelName, dest) {
-    let style = 'index.' + this.ctx.preprocessor
-      , transforms = []
-
-    if (this.ctx.preprocessor === 'less') {
-      // Less transform is specified programmatically because
-      // we need less plugins.
-      // // transforms.push('less-css-stream')
-    } else if (this.ctx.preprocessor === 'sass') {
-      transforms.push('sass-css-stream')
-    }
-
-    this.fs.copyTpl(
-      this.templatePath('parcel-package.json'),
-      this.destinationPath(dest),
-      { moduleName: this.appname, parcelName, style, transforms }
-    )
-  }
-
   actions() {
     if (this.manifest.action === 0) {
       return;
@@ -346,8 +339,6 @@ const self = module.exports = class ChromeGenerator extends Base {
       this.templatePath('popup.html'),
       this.destinationPath('app/lib/popup/popup.html')
     )
-
-    this._createParcel('popup', 'app/lib/popup/package.json')
 
     this.fs.copy(
       this.templatePath('images/icon-19.png'),
@@ -388,7 +379,6 @@ const self = module.exports = class ChromeGenerator extends Base {
       this.destinationPath('app/lib/options/options.html')
     )
 
-    this._createParcel('options', 'app/lib/options/package.json')
     this._createStyle('app/lib/options')
   }
 
@@ -396,8 +386,7 @@ const self = module.exports = class ChromeGenerator extends Base {
     if (!this.manifest.contentscript) {
       return
     }
-    
-    this._createParcel('content-script', 'app/lib/content-script/package.json')
+
     this._createStyle('app/lib/content-script')
   }
 

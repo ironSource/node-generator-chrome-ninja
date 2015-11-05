@@ -5,8 +5,7 @@ gulp.task('develop', done => {
   sequence( 'config:prompt'
           , 'config:print'
           , 'clean'
-        , [ 'browserify:watch', 'assets' ]
+        , [ 'browserify:watch', 'assets', 'manifest:dev' ]
         , [ 'compress', 'assets:watch' ]
-          , 'livereload'
           ,  done )
 })

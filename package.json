@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "bootswatch": "~3.3.5",
-    "generator-bare-react": "~1.0.1",
+    "generator-bare-react": "~1.1.1",
     "generator-nom": "~1.1.0",
     "param-case": "~1.1.1",
     "yeoman-generator": "~0.20.3"

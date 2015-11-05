@@ -5,7 +5,7 @@ gulp.task('build', done => {
   sequence( 'config:prompt'
           , 'config:print'
           , 'clean'
-        , [ 'browserify', 'assets' ]
+        , [ 'browserify', 'assets', 'manifest:prod' ]
           , 'compress'
           ,  done )
 })
