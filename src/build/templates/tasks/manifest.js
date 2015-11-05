@@ -14,13 +14,6 @@ gulp.task('manifest:dev', (done) => {
 
 gulp.task('manifest:prod', (done) => build(done))
 
-/**
- * [build description]
- *
- * @param  {Function} done  [description]
- * @param  {[type]}   extra =             {} [description]
- * @return {[type]}         [description]
- */
 function build(done, extra = {}) {
   let mani = { ...manifest, version, ...extra }
     , json = JSON.stringify(mani, null, ' ')
