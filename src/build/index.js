@@ -74,7 +74,7 @@ const self = module.exports = class ChromeGenerator extends Base {
                    , { value: 'contentscript', name: 'Content Scripts'
                      , checked: !!content_scripts }
                    , { value: 'omnibox', name: 'Omnibox'
-                     , checked: !!omnibox ]
+                     , checked: !!omnibox }]
       },{ type: 'confirm'
         , name: 'bootstrap'
         , store: true
