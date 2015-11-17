@@ -2,7 +2,7 @@ var gulp = require('gulp')
   , imagemin = require('gulp-imagemin')
 
 const IMAGES = 'app/**/*.{jpg,png,jpeg,gif}'
-    , REST = [ 'app/**/*.{ico,txt,html,webp}'
+    , REST = [ 'app/**/*.{ico,txt,html,webp,svg}'
              , 'app/_locales/**/*.json'
              , 'app/styles/fonts/**/*.*' ]
 
