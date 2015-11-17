@@ -87,14 +87,6 @@ const self = module.exports = class ChromeGenerator extends Base {
         }]
       },
       {
-        type: 'list',
-        name: 'preprocessor',
-        message: 'Which CSS preprocessor would you like to use?',
-        default: 'none',
-        store: true,
-        choices: [ 'none', 'less' ] //, 'sass' ]
-      },
-      {
         type: 'confirm',
         name: 'bootstrap',
         store: true,
@@ -147,8 +139,7 @@ const self = module.exports = class ChromeGenerator extends Base {
       let name = this.appname = escape(answers.name)
         , description = escape(answers.description)
 
-      // TODO: set display value for questions
-      if (answers.preprocessor === 'none') answers.preprocessor = 'css'
+      // TODO: set display value for question
       if (answers.bootstrapTheme === 'none') answers.bootstrapTheme = null
 
       this.ctx = answers
@@ -176,16 +167,6 @@ const self = module.exports = class ChromeGenerator extends Base {
 
         // Add livereactload dependencies
         devDependencies = { ...devDependencies, ...REACT_DEV_DEPENDENCIES }
-      }
-
-      if (answers.bootstrap && answers.preprocessor !== 'css') {
-        dependencies['bootswatch'] = null
-      }
-
-      if (answers.preprocessor === 'less') {
-        // ..
-      } else if (answers.preprocessor === 'sass') {
-        // ..
       }
 
       this.composeWith('nom'
@@ -322,10 +303,9 @@ const self = module.exports = class ChromeGenerator extends Base {
   }
 
   _createStyle(dest, ctx = {}) {
-    let name = 'index.' + this.ctx.preprocessor
     this.fs.copyTpl(
-      this.templatePath('styles/' + name),
-      this.destinationPath(dest + '/' + name),
+      this.templatePath('styles/index.css'),
+      this.destinationPath(dest + '/index.css'),
       { ...this.ctx, ...ctx }
     )
   }
