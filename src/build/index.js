@@ -17,6 +17,8 @@ const DEV_DEPENDENCIES =
   , 'concat-stream': null
   , 'path-exists': null
   , 'gulp-imagemin': null
+  , 'gulp-cssnext': 'vweevers/gulp-cssnext#fix-mutate-options'
+  , 'postcss-nested': null
   , 'config-prompt': '~1.0.0'
   , 'in-production': null
   , 'vinyl-imitate': '~1.0.0'
