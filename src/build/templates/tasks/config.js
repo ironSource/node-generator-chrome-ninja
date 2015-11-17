@@ -1,6 +1,5 @@
-var gulp = require('gulp')
-
-var config = require('config-prompt')({
+const gulp = require('gulp')
+const config = require('config-prompt')({
   exampleString: { type: 'string', required: true },
   exampleFlag:   { type: 'boolean', default: true }
 })

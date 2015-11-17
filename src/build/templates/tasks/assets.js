@@ -1,5 +1,5 @@
-var gulp = require('gulp')
-  , imagemin = require('gulp-imagemin')
+const gulp = require('gulp')
+    , imagemin = require('gulp-imagemin')
 
 const IMAGES = 'app/**/*.{jpg,png,jpeg,gif}'
     , REST = [ 'app/**/*.{ico,txt,html,webp,svg}'
@@ -11,7 +11,7 @@ gulp.task('assets:imagemin', () => {
   return gulp.src(IMAGES)
     .pipe(imagemin({ progressive: true }))
     .pipe(gulp.dest('dist'))
-});
+})
 
 gulp.task('assets:rest', () => {
   return gulp.src(REST, { base: 'app' }).pipe(gulp.dest('dist'))

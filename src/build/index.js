@@ -1,8 +1,8 @@
-var paramCase = require('param-case')
-  , bootswatch = require('bootswatch/api/3.json').themes
-  , bareReact = require.resolve('generator-bare-react')
+const paramCase = require('param-case')
+    , bootswatch = require('bootswatch/api/3.json').themes
+    , bareReact = require.resolve('generator-bare-react')
 
-var { Base } = require('yeoman-generator')
+const { Base } = require('yeoman-generator')
 
 const DEV_DEPENDENCIES =
   { 'babelify': '~6.4.0'
@@ -39,7 +39,8 @@ const self = module.exports = class ChromeGenerator extends Base {
     let { name, description } = this.fs.readJSON('package.json', {})
 
     // Use existing manifest values as defaults
-    let { permissions = [], browser_action, page_action, options_page, omnibox, content_scripts }
+    let { permissions = [], browser_action, page_action, options_page, omnibox
+        , content_scripts }
         = this.fs.readJSON('app/manifest.json', {})
 
     let questions = [
@@ -160,10 +161,7 @@ const self = module.exports = class ChromeGenerator extends Base {
 
       if (this.manifest.action > 0 || this.manifest.options || this.manifest.contentscript) {
         // Put additional babelrc in app dir, with livereactload config
-        this.fs.copy(
-          this.templatePath('react.babelrc'),
-          this.destinationPath('app/.babelrc')
-        )
+        this._copy('react.babelrc', 'app/.babelrc')
 
         // Add livereactload dependencies
         devDependencies = { ...devDependencies, ...REACT_DEV_DEPENDENCIES }
@@ -192,20 +190,22 @@ const self = module.exports = class ChromeGenerator extends Base {
     this.composeWith('bare-react', { options }, link)
   }
 
+  // TODO: remove legacy code and just stringify manifest as a whole
   manifest() {
-    var manifest = {};
-    var permissions = [];
-    var items = [];
+    let manifest = {}
+      , permissions = []
+      , items = []
 
     // add browser / page action field
     if (this.manifest.action > 0) {
-      var action = {
-        default_icon: { 19: 'images/icon-19.png', 38: 'images/icon-38.png' },
-        default_title: this.manifest.name,
-        default_popup: 'lib/popup/popup.html'
-      };
-      var title = (this.manifest.action === 1) ? 'browser_action' : 'page_action';
-      manifest[title] = JSON.stringify(action, null, 2).replace(/\n/g, '\n  ');
+      let action = { default_icon: { 19: 'images/icon-19.png'
+                                   , 38: 'images/icon-38.png' }
+                   , default_title: this.manifest.name
+                   , default_popup: 'lib/popup/popup.html' }
+
+      let type = this.manifest.action === 1 ? 'browser_action' : 'page_action'
+
+      manifest[type] = JSON.stringify(action, null, 2).replace(/\n/g, '\n  ')
 
       this._addReact
        ({ type: 'app'
@@ -220,12 +220,10 @@ const self = module.exports = class ChromeGenerator extends Base {
 
     // add options page field.
     if (this.manifest.options) {
-      var options_ui = {
-        page: 'lib/options/options.html',
-        chrome_style: true
-      };
-      manifest.options_page = '"lib/options/options.html"';
-      manifest.options_ui = JSON.stringify(options_ui, null, 2).replace(/\n/g, '\n  ');
+      let options_ui = { page: 'lib/options/options.html', chrome_style: true }
+
+      manifest.options_page = '"lib/options/options.html"'
+      manifest.options_ui = JSON.stringify(options_ui, null, 2).replace(/\n/g, '\n  ')
 
       this._addReact
        ({ type: 'app'
@@ -238,19 +236,19 @@ const self = module.exports = class ChromeGenerator extends Base {
 
     // add omnibox keyword field.
     if (this.manifest.omnibox) {
-      manifest.omnibox = JSON.stringify({ keyword: this.manifest.name }, null, 2).replace(/\n/g, '\n  ');
+      let omnibox = { keyword: this.manifest.name }
+      manifest.omnibox = JSON.stringify(omnibox, null, 2).replace(/\n/g, '\n  ')
     }
 
     // add contentscript field.
     if (this.manifest.contentscript) {
-      var contentscript = [{
-        matches: ['http://*/*', 'https://*/*'],
-        js: ['lib/content-script/index.js'],
-        run_at: 'document_end',
-        all_frames: false
-      }];
+      let contentscript = { matches: ['http://*/*', 'https://*/*']
+                          , js: ['lib/content-script/index.js']
+                          , run_at: 'document_end'
+                          , all_frames: false }
 
-      manifest.content_scripts = JSON.stringify(contentscript, null, 2).replace(/\n/g, '\n  ');
+      manifest.content_scripts =
+        JSON.stringify([contentscript], null, 2).replace(/\n/g, '\n  ')
 
       this._addReact
        ({ type: 'app'
@@ -264,7 +262,7 @@ const self = module.exports = class ChromeGenerator extends Base {
     }
 
     // add generate permission field.
-    for (var p in this.manifest.permissions) {
+    for (let p in this.manifest.permissions) {
       if (this.manifest.permissions[p]) {
         permissions.push(p)
       }
@@ -277,114 +275,79 @@ const self = module.exports = class ChromeGenerator extends Base {
     }
 
     if (permissions.length > 0) {
-      manifest.permissions = JSON.stringify(permissions, null, 2).replace(/\n/g, '\n  ')
+      manifest.permissions =
+        JSON.stringify(permissions, null, 2).replace(/\n/g, '\n  ')
     }
 
-    for (var i in manifest) {
-      items.push(['  "', i, '": ', manifest[i]].join(''))
+    for (let k in manifest) {
+      items.push(['  "', k, '": ', manifest[k]].join(''))
     }
 
-    this.manifest.items = (items.length > 0) ? ',\n' + items.join(',\n') : '';
+    this.manifest.items = items.length > 0 ? ',\n' + items.join(',\n') : ''
 
-    this.fs.copyTpl(
-      this.templatePath('manifest.json'),
-      this.destinationPath('app/manifest.json'),
-      this.manifest
-    )
-  }
-
-  // copy source files to scripts
-  _copyjs(src, dest = src, ctx = {}) {
-    this.fs.copyTpl(
-      this.templatePath('scripts/' + src),
-      this.destinationPath(dest),
-      ctx
-    )
-  }
-
-  _createStyle(dest, ctx = {}) {
-    this.fs.copyTpl(
-      this.templatePath('styles/index.css'),
-      this.destinationPath(dest + '/index.css'),
-      { ...this.ctx, ...ctx }
-    )
+    this._copyTpl('manifest.json', 'app/manifest.json', this.manifest)
   }
 
   actions() {
-    if (this.manifest.action === 0) {
-      return;
+    if (this.manifest.action !== 0) {
+      this._copy('popup.html', 'app/lib/popup/popup.html')
+      this._copy('images/icon-19.png', 'app/images/icon-19.png')
+      this._copy('images/icon-38.png', 'app/images/icon-38.png')
+      this._copyCSS('app/lib/popup')
     }
-
-    this.fs.copy(
-      this.templatePath('popup.html'),
-      this.destinationPath('app/lib/popup/popup.html')
-    )
-
-    this.fs.copy(
-      this.templatePath('images/icon-19.png'),
-      this.destinationPath('app/images/icon-19.png')
-    )
-
-    this.fs.copy(
-      this.templatePath('images/icon-38.png'),
-      this.destinationPath('app/images/icon-38.png')
-    )
-
-    this._createStyle('app/lib/popup')
   }
 
   eventpage() {
     let pageName = 'background page'
       , withAction = false
+      , action = this.manifest.action
 
-    if (this.manifest.action === 2) {
+    if (action === 2) {
       pageName = 'event page for Page Action'
       withAction = true
-    } else if (this.manifest.action === 1) {
+    } else if (action === 1) {
       pageName = 'event page for Browser Action'
       withAction = true
     }
 
-    this._copyjs('background.js', 'app/lib/background/index.js', { pageName, withAction })
-    this._copyjs('chromereload.js', 'app/lib/background/chromereload.js')
+    let ctx = { pageName, withAction }
+    this._copyJS('background.js', 'app/lib/background/index.js', ctx)
   }
 
   optionsHtml() {
-    if (!this.manifest.options) {
-      return
+    if (this.manifest.options) {
+      this._copy('options.html', 'app/lib/options/options.html')
+      this._copyCSS('app/lib/options')
     }
-
-    this.fs.copy(
-      this.templatePath('options.html'),
-      this.destinationPath('app/lib/options/options.html')
-    )
-
-    this._createStyle('app/lib/options')
   }
 
   contentscript() {
-    if (!this.manifest.contentscript) {
-      return
+    if (this.manifest.contentscript) {
+      this._copyCSS('app/lib/content-script')
     }
-
-    this._createStyle('app/lib/content-script')
   }
 
   assets() {
-    this.fs.copyTpl(
-      this.templatePath('_locales/en/messages.json'),
-      this.destinationPath('app/_locales/en/messages.json'),
-      this.manifest
-    )
+    let messages = '_locales/en/messages.json'
 
-    this.fs.copy(
-      this.templatePath('images/icon-16.png'),
-      this.destinationPath('app/images/icon-16.png')
-    )
+    this._copyTpl(messages, `app/${messages}`, this.manifest)
+    this._copy('images/icon-16.png', 'app/images/icon-16.png')
+    this._copy('images/icon-128.png', 'app/images/icon-128.png')
+  }
 
-    this.fs.copy(
-      this.templatePath('images/icon-128.png'),
-      this.destinationPath('app/images/icon-128.png')
-    )
+  _copy(src, dest = src) {
+    this.fs.copy(this.templatePath(src), this.destinationPath(dest))
+  }
+
+  _copyTpl(src, dest = src, ctx = {}) {
+    this.fs.copyTpl(this.templatePath(src), this.destinationPath(dest), ctx)
+  }
+
+  _copyJS(src, dest = src, ctx = {}) {
+    this._copyTpl('scripts/' + src, dest, ctx)
+  }
+
+  _copyCSS(dest) {
+    this._copyTpl('styles/index.css', dest + '/index.css', this.ctx)
   }
 }

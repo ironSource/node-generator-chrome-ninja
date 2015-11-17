@@ -1,5 +1,5 @@
-var gulp = require('gulp')
-  , sequence = require('run-sequence')
+const gulp = require('gulp')
+    , sequence = require('run-sequence')
 
 gulp.task('develop', done => {
   sequence( 'config:prompt'
