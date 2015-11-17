@@ -1,7 +1,7 @@
 const gulp = require('gulp')
     , sequence = require('run-sequence')
 
-gulp.task('develop', done => {
+gulp.task('develop', (done) => {
   sequence( 'config:prompt'
           , 'config:print'
           , 'clean'
