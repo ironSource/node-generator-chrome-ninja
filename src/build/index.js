@@ -4,6 +4,13 @@ const paramCase = require('param-case')
 
 const { Base } = require('yeoman-generator')
 
+const PERMISSIONS =
+  [ 'tabs'
+  , 'bookmarks'
+  , 'cookies'
+  , 'history'
+  , 'management' ]
+
 const DEV_DEPENDENCIES =
   { 'babelify': '~6.4.0'
   , 'browserify': null // use latest
@@ -43,101 +50,59 @@ const self = module.exports = class ChromeGenerator extends Base {
         , content_scripts }
         = this.fs.readJSON('app/manifest.json', {})
 
-    let questions = [
-      {
-        name: 'name',
-        message: 'What would you like to call this extension?',
-        default: name || (this.appname ? paramCase(this.appname) : 'my-chrome-extension'),
-        validate: (val) => paramCase(val).length ? true : 'You have to provide a name',
-        filter: paramCase
-      },
-      {
-        name: 'description',
-        message: 'How would you like to describe this extension?',
-        default: description || 'My Chrome Extension',
-        validate: (val) => val.trim().length ? true : 'You have to provide a description',
-        filter: (s) => s.trim()
-      },
-      {
-        type: 'list',
-        name: 'action',
-        message: 'Would you like to use UI Action?',
-        default: browser_action ? 'Browser' : page_action ? 'Page' : 'No',
-        choices: [
-          'No',
-          'Browser',
-          'Page'
-        ]
-      },
-      {
-        type: 'checkbox',
-        name: 'uifeatures',
-        message: 'Would you like more UI Features?',
-        choices: [{
-          value: 'options',
-          name: 'Options Page',
-          checked: !!options_page
-        }, {
-          value: 'contentscript',
-          name: 'Content Scripts',
-          checked: !!content_scripts
-        }, {
-          value: 'omnibox',
-          name: 'Omnibox',
-          checked: !!omnibox
-        }]
-      },
-      {
-        type: 'confirm',
-        name: 'bootstrap',
-        store: true,
-        message: 'Would you like to use Bootstrap?',
-        default: false
-      },
-      {
-        type: 'list',
-        name: 'bootstrapTheme',
-        message: 'Which Bootstrap theme would you like?',
-        when: (answers) => answers.bootstrap === true,
-        default: 'none',
-        store: true,
-        choices: [ 'none', 'default' ].concat(bootswatchNames())
-      },
-      {
-        type: 'checkbox',
-        name: 'permissions',
-        message: 'Which permissions do you need?',
-        choices: [{
-          value: 'tabs',
-          name: 'Tabs',
-          checked: permissions.indexOf('tabs') >= 0
-        }, {
-          value: 'bookmarks',
-          name: 'Bookmarks',
-          checked: permissions.indexOf('bookmarks') >= 0
-        }, {
-          value: 'cookies',
-          name: 'Cookies',
-          checked: permissions.indexOf('cookies') >= 0
-        }, {
-          value: 'history',
-          name: 'History',
-          checked: permissions.indexOf('history') >= 0
-        }, {
-          value: 'management',
-          name: 'Management',
-          checked: permissions.indexOf('management') >= 0
-        }]
+    let questions =
+      [ { name: 'name'
+        , message: 'What would you like to call this extension?'
+        , default: paramCase(name || this.appname || 'my-chrome-extension')
+        , validate: (v) => paramCase(v).length ? true : 'You have to provide a name'
+        , filter: paramCase
+      },{ name: 'description'
+        , message: 'How would you like to describe this extension?'
+        , default: description || 'My Chrome Extension'
+        , validate: (v) => v.trim().length ? true : 'You have to provide a description'
+        , filter: (s) => s.trim()
+      },{ type: 'list'
+        , name: 'action'
+        , message: 'Would you like to use UI Action?'
+        , default: browser_action ? 'Browser' : page_action ? 'Page' : 'No'
+        , choices: [ 'No', 'Browser', 'Page' ]
+      },{ type: 'checkbox'
+        , name: 'uifeatures'
+        , message: 'Would you like more UI Features?'
+        , choices: [ { value: 'options', name: 'Options Page'
+                     , checked: !!options_page }
+                   , { value: 'contentscript', name: 'Content Scripts'
+                     , checked: !!content_scripts }
+                   , { value: 'omnibox', name: 'Omnibox'
+                     , checked: !!omnibox ]
+      },{ type: 'confirm'
+        , name: 'bootstrap'
+        , store: true
+        , message: 'Would you like to use Bootstrap?'
+        , default: false
+      },{ type: 'list'
+        , name: 'bootstrapTheme'
+        , message: 'Which Bootstrap theme would you like?'
+        , when: (answers) => answers.bootstrap === true
+        , default: 'none'
+        , store: true
+        , choices: [ 'none', 'default' ].concat(bootswatchNames())
+      },{ type: 'checkbox'
+        , name: 'permissions'
+        , message: 'Which permissions do you need?'
+        , choices: PERMISSIONS.map(name => {
+            let checked = permissions.indexOf(name) >= 0
+            return { value: name, name, checked }
+          })
       }
-    ];
+    ]
 
     let done = this.async()
 
     this.prompt(questions, (answers) => {
       let isChecked = (choices, value) => choices.indexOf(value) >= 0
-      let escape = (s) => s.replace(/\"/g, '\\"')
-
-      let name = this.appname = escape(answers.name)
+        , escape = (s) => s.replace(/\"/g, '\\"')
+        , name = this.appname = escape(answers.name)
         , description = escape(answers.description)
 
       // TODO: set display value for question
@@ -174,7 +139,8 @@ const self = module.exports = class ChromeGenerator extends Base {
                       , skipCache: this.options.skipCache
                       , enable: [ 'gulp'
                                 , 'npm'  ]
-                      , gulp: { tasks: this.templatePath('tasks') + '/**/*', ctx: this.ctx }
+                      , gulp: { tasks: this.templatePath('tasks') + '/**/*'
+                              , ctx: this.ctx }
                       , npm:  { cli: false
                               , dependencies
                               , devDependencies }}}
