@@ -30,8 +30,17 @@ Then go to `chrome://extensions`, enable developer mode and load `./dist` as an 
 Install Yeoman and generator-chrome-ninja globally with [npm](https://npmjs.org):
 
 ```
-npm i yo generator-chrome-ninja -g 
+npm i yo generator-chrome-ninja -g
 ```
+
+## changelog
+
+Upcoming release (2.0.0):
+
+- Hot reloading! For background scripts, content scripts, popups, and option pages.
+- The version field of `manifest.json` follows `package.json` version
+- Pinned Babel to 5. We can't move to Babel 6 until  [babel-plugin-react-transform#46](https://github.com/gaearon/babel-plugin-react-transform/issues/46) and [livereactload#78](https://github.com/milankinen/livereactload/issues/78) have been resolved.
+- All things CSS have been removed: live reloading and bundling CSS (parcelify), preprocessing (LESS/SASS). We're likely to move to CSS modules, please follow [#3](https://github.com/ironSource/node-generator-chrome-ninja/issues/3) for updates. Or, for an example of PostCSS postprocessing, check out the [cssnext](https://github.com/ironSource/node-generator-chrome-ninja/tree/feature-cssnext) branch.
 
 ## license and acknowledgments
 
