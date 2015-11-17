@@ -1,6 +1,7 @@
 const paramCase = require('param-case')
     , bootswatch = require('bootswatch/api/3.json').themes
     , bareReact = require.resolve('generator-bare-react')
+    , colors = require('chalk')
 
 const { Base } = require('yeoman-generator')
 
@@ -34,6 +35,12 @@ const REACT_DEV_DEPENDENCIES =
   , 'livereactload': '~2.1.0'
   , 'react-proxy': '~1.1.1'
   , 'livereactload-chrome': '~1.0.2' }
+
+const MODULE_FORMATS =
+  { commonjs: { name: 'CommonJS'
+              , snippet: `const assign = require('object-assign')` }
+  , es6:      { name: 'ES6 modules'
+              , snippet: `import assign from 'object-assign'` }}
 
 function bootswatchNames() {
   return bootswatch.map(theme => theme.name)
@@ -94,6 +101,21 @@ const self = module.exports = class ChromeGenerator extends Base {
             let checked = permissions.indexOf(name) >= 0
             return { value: name, name, checked }
           })
+      },{ type: 'confirm'
+        , name: 'esnext'
+        , message: 'Do you prefer ES6 over ES5?'
+        , default: true
+        , store: true
+      },{ type: 'list'
+        , name: 'modules'
+        , when: (answers) => answers.esnext
+        , message: 'Which module format do you prefer?'
+        , default: 'commonjs'
+        , store: true
+        , choices: Object.keys(MODULE_FORMATS).map(key => {
+            let { name, snippet } = MODULE_FORMATS[key]
+            return { name: `${name}  ${colors.gray(snippet)}`, value: key }
+          })
       }
     ]
 
@@ -132,17 +154,23 @@ const self = module.exports = class ChromeGenerator extends Base {
         devDependencies = { ...devDependencies, ...REACT_DEV_DEPENDENCIES }
       }
 
+      let tasks = answers.esnext ?
+        ? this.templatePath('tasks/es6')
+        : this.templatePath('tasks/es5')
+
       this.composeWith('nom'
         , { options:  { name
                       , description
                       , skipInstall: this.options.skipInstall
                       , skipCache: this.options.skipCache
+                      , esnext: answers.esnext
+                      , modules: answers.modules
                       , enable: [ 'gulp'
                                 , 'npm'  ]
-                      , gulp: { tasks: this.templatePath('tasks') + '/**/*'
+                      , gulp: { tasks: tasks + '/**/*'
                               , ctx: this.ctx }
-                      , npm:  { cli: false
-                              , dependencies
+                      , npm:  { dependencies
+                              , main: false
                               , devDependencies }}}
         , { local: require.resolve('generator-nom')
           , link: 'strong' })
@@ -152,7 +180,21 @@ const self = module.exports = class ChromeGenerator extends Base {
   }
 
   _addReact(options) {
-    let link = { local: bareReact, link: 'strong' }
+    let link = { local: bareReact, link: 'strong' }, style
+
+    // TODO: add esnext and modules options to bare-react
+    if (this.ctx.esnext) {
+      style = this.ctx.modules === 'es6' ? 'es6' : 'es6-functional'
+    } else {
+      style = 'es5'
+    }
+
+    options =
+      { skipInstall: this.options.skipInstall
+      , skipCache: this.options.skipCache
+      , style
+      , ...options }
+
     this.composeWith('bare-react', { options }, link)
   }
 
@@ -179,8 +221,6 @@ const self = module.exports = class ChromeGenerator extends Base {
         , name: 'Popup'
         , router: false
         , bootstrap: this.ctx.bootstrap
-        , skipInstall: this.options.skipInstall
-        , skipCache: this.options.skipCache
         , children: [ 'PopupNinja' ] })
     }
 
@@ -193,8 +233,6 @@ const self = module.exports = class ChromeGenerator extends Base {
 
       this._addReact
        ({ type: 'app'
-        , skipInstall: this.options.skipInstall
-        , skipCache: this.options.skipCache
         , bootstrap: this.ctx.bootstrap
         , dest: 'app/lib/options'
         , name: 'Options' })
@@ -218,8 +256,6 @@ const self = module.exports = class ChromeGenerator extends Base {
 
       this._addReact
        ({ type: 'app'
-        , skipInstall: this.options.skipInstall
-        , skipCache: this.options.skipCache
         , dest: 'app/lib/content-script'
         , name: 'ContentScript'
         , append: true
@@ -277,7 +313,9 @@ const self = module.exports = class ChromeGenerator extends Base {
     }
 
     let ctx = { pageName, withAction }
-    this._copyJS('background.js', 'app/lib/background/index.js', ctx)
+    let dir = this.ctx.esnext ? 'es6' : 'es5'
+
+    this._copyJS(`${dir}/background.js`, 'app/lib/background/index.js', ctx)
   }
 
   optionsHtml() {

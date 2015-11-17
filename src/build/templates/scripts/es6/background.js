@@ -7,9 +7,11 @@ chrome.runtime.onInstalled.addListener(details => {
   console.log('Previous version is %o', details.previousVersion)
 })
 
-<% if (withAction) { %>chrome.browserAction.setBadgeText({ text: 'ninja' })
+<% if (withAction) { -%>
+chrome.browserAction.setBadgeText({ text: 'ninja' })
+<% } -%>
 
-<% } %>const ascii = `
+const ascii = `
    ____   _ ___     _ ___ _
   / __ \\/ / __ \\  / / __ \`/
  / / / / / / / / / / /_/ /

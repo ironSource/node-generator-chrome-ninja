@@ -1,5 +1,10 @@
+<% if (modules === 'es6') { -%>
+import gulp from 'gulp'
+import imagemin from 'gulp-imagemin'
+<% } else { -%>
 const gulp = require('gulp')
     , imagemin = require('gulp-imagemin')
+<% } -%>
 
 const IMAGES = 'app/**/*.{jpg,png,jpeg,gif}'
     , REST = [ 'app/**/*.{ico,txt,html,webp,svg}'

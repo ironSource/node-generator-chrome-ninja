@@ -1,8 +1,16 @@
+<% if (modules === 'es6') { -%>
+import gulp from 'gulp'
+import manifest from '../app/manifest.json'
+import { mkdir, writeFile } from 'fs'
+import { version } from '../package.json'
+import { resolve, join } from 'path'
+<% } else { -%>
 const gulp = require('gulp')
     , manifest = require('../app/manifest.json')
   , { mkdir, writeFile } = require('fs')
   , { version } = require('../package.json')
   , { resolve, join } = require('path')
+<% } -%>
 
 gulp.task('manifest:dev', (done) => {
   gulp.watch('app/manifest.json', ['manifest:dev'])

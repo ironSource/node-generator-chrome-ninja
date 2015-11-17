@@ -1,3 +1,15 @@
+<% if (modules === 'es6') { -%>
+import gulp from 'gulp'
+import browserify from 'browserify'
+import watchify from 'watchify'
+import envify from 'envify/custom'
+import inProduction from 'in-production/function'
+import config from './config'
+import through2 from 'through2'
+import concat from 'concat-stream'
+import imitate from 'vinyl-imitate'
+import { log, colors } from 'gulp-util'
+<% } else { -%>
 const gulp = require('gulp')
     , browserify = require('browserify')
     , watchify = require('watchify')
@@ -8,6 +20,7 @@ const gulp = require('gulp')
     , concat = require('concat-stream')
     , imitate = require('vinyl-imitate')
   , { log, colors } = require('gulp-util')
+<% } -%>
 
 const SRC = 'app/lib/*/index.js'
     , DEST = 'dist'
@@ -22,8 +35,7 @@ function bundleAll(watch = false) {
     , hotreloadPort = 4474
 
   return src.pipe(through2.obj(function(file, _, next) {
-    let { relative, path } = file
-    let b = bundleEntry(path)
+    let b = bundleEntry(file.path)
 
     if (watch) {
       b.plugin('livereactload', {
@@ -32,7 +44,7 @@ function bundleAll(watch = false) {
       })
 
       b.plugin(watchify).on('update', () => {
-        log('Bundling %s', colors.magenta(relative))
+        log('Bundling %s', colors.magenta(file.relative))
 
         let contents = b.bundle()
         let swallow = (err) => {
