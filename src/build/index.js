@@ -5,8 +5,8 @@ var paramCase = require('param-case')
 var { Base } = require('yeoman-generator')
 
 const DEV_DEPENDENCIES =
-  { 'babelify': null // use latest
-  , 'browserify': null
+  { 'babelify': '~6.4.0'
+  , 'browserify': null // use latest
   , 'envify': null
   , 'trash': '~2.0.0' // promisified as of 3.0
   , 'gulp-zip': null
