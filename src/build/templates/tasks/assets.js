@@ -3,6 +3,7 @@ var gulp = require('gulp')
 
 const IMAGES = 'app/**/*.{jpg,png,jpeg,gif}'
     , REST = [ 'app/**/*.{ico,txt,html,webp,svg}'
+             , 'app/**/*.css'
              , 'app/_locales/**/*.json'
              , 'app/styles/fonts/**/*.*' ]
 
