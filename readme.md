@@ -7,6 +7,7 @@
 ## demo
 
 *Note: outdated.*
+
 ![demo](https://github.com/ironSource/node-generator-chrome-ninja/raw/master/demo.gif)
 
 ## hot reloading
