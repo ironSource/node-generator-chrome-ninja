@@ -154,7 +154,7 @@ const self = module.exports = class ChromeGenerator extends Base {
         devDependencies = { ...devDependencies, ...REACT_DEV_DEPENDENCIES }
       }
 
-      let tasks = answers.esnext ?
+      let tasks = answers.esnext
         ? this.templatePath('tasks/es6')
         : this.templatePath('tasks/es5')
 
