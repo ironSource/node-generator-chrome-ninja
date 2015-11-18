@@ -24,7 +24,7 @@
     "gulp-if": "~1.2.5",
     "gulp-util": "~3.0.6",
     "path-exists": "~2.1.0",
-    "trash": "~3.4.0"
+    "trash": "~2.0.0"
   },
   "dependencies": {
     "bootswatch": "~3.3.5",
