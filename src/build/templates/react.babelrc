@@ -1,6 +1,10 @@
 {
   "blacklist": [ "regenerator" ],
-  "optional":  [ "es7.objectRestSpread", "es7.classProperties" ],
+  "optional":  [
+    "es7.objectRestSpread",
+    "es7.classProperties",
+    "es7.decorators"
+  ],
   "env": {
     "development": {
       "plugins": [
