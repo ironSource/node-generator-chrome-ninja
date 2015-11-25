@@ -21,18 +21,18 @@
     "babel-core": "~5.8.25",
     "gulp": "~3.9.0",
     "gulp-babel": "~5.2.1",
-    "gulp-if": "~1.2.5",
-    "gulp-util": "~3.0.6",
+    "gulp-if": "~2.0.0",
+    "gulp-util": "~3.0.7",
     "path-exists": "~2.1.0",
     "trash": "~2.0.0"
   },
   "dependencies": {
-    "bootswatch": "~3.3.5",
+    "bootswatch": "~3.3.6",
     "chalk": "~1.1.1",
     "generator-bare-react": "~2.0.0",
     "generator-nom": "~2.0.0",
     "param-case": "~1.1.1",
-    "yeoman-generator": "~0.20.3"
+    "yeoman-generator": "~0.21.1"
   },
   "repository": "ironSource/node-generator-chrome-ninja",
   "bugs": "https://github.com/ironSource/node-generator-chrome-ninja/issues",
