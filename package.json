@@ -27,7 +27,7 @@
     "trash": "~2.0.0"
   },
   "dependencies": {
-    "bootswatch": "~3.3.6",
+    "bootswatch": "3.3.5",
     "chalk": "~1.1.1",
     "generator-bare-react": "~2.0.0",
     "generator-nom": "~2.0.0",
