@@ -1,6 +1,6 @@
 {
   "name": "generator-chrome-ninja",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Generator for Chrome extensions",
   "main": "generators/app/index.js",
   "scripts": {
