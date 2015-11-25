@@ -180,19 +180,14 @@ const self = module.exports = class ChromeGenerator extends Base {
   }
 
   _addReact(options) {
+    let { esnext, modules } = this.ctx
     let link = { local: bareReact, link: 'strong' }, style
-
-    // TODO: add esnext and modules options to bare-react
-    if (this.ctx.esnext) {
-      style = this.ctx.modules === 'es6' ? 'es6' : 'es6-functional'
-    } else {
-      style = 'es5'
-    }
 
     options =
       { skipInstall: this.options.skipInstall
       , skipCache: this.options.skipCache
-      , style
+      , esnext
+      , modules
       , ...options }
 
     this.composeWith('bare-react', { options }, link)
