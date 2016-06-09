@@ -1,12 +1,10 @@
 <% if (modules === 'es6') { -%>
 import gulp from 'gulp'
-import manifest from '../app/manifest.json'
 import { mkdir, writeFile } from 'fs'
 import { version } from '../package.json'
 import { resolve, join } from 'path'
 <% } else { -%>
 const gulp = require('gulp')
-    , manifest = require('../app/manifest.json')
   , { mkdir, writeFile } = require('fs')
   , { version } = require('../package.json')
   , { resolve, join } = require('path')
@@ -23,6 +21,8 @@ gulp.task('manifest:dev', (done) => {
 gulp.task('manifest:prod', (done) => build(done))
 
 function build(done, extra = {}) {
+  delete require.cache[require.resolve('../app/manifest.json')]
+  let manifest = require('../app/manifest.json')
   let mani = { ...manifest, version, ...extra }
     , json = JSON.stringify(mani, null, ' ')
     , dist = resolve(__dirname, '..', 'dist')

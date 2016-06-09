@@ -1,5 +1,4 @@
 var gulp = require('gulp')
-  , manifest = require('../app/manifest.json')
   , assign = require('object-assign')
   , fs = require('fs')
   , version = require('../package.json').version
@@ -18,6 +17,8 @@ gulp.task('manifest:prod', function(done) {
 })
 
 function build(done, extra) {
+  delete require.cache[require.resolve('../app/manifest.json')]
+  var manifests= require('../app/manifest.json')
   var mani = assign({}, manifest, { version: version }, extra)
     , json = JSON.stringify(mani, null, ' ')
     , dist = path.resolve(__dirname, '..', 'dist')
